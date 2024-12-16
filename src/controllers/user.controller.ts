@@ -62,6 +62,7 @@ export class UserController {
 			res.status(500).json({ message: "Internal server error." });
 		}
 	}
+
 	public async uploadPhoto(req: Request, res: Response): Promise<void> {
 		const { id } = req.params;
 		const { fileId } = req.body;
@@ -81,6 +82,24 @@ export class UserController {
 			res.status(500).json({ message: "Internal server error." });
 		}
 	}
+
+	public async getUsers(req: Request, res: Response): Promise<void> {
+		const { page, size } = req.query as { page: string; size: string };
+		const { id } = req.user as { id: string };
+
+		try {
+			const users = await this.userService.getAllUsers(
+				id,
+				Number(page) || 1,
+				Number(size) || 20
+			);
+			res.status(200).json(users);
+			return;
+		} catch (error) {
+			console.error(error);
+			res.sendStatus(500);
+		}
+	}
 }
 
 const router = Router();
@@ -93,6 +112,6 @@ router.put(
 	authGuard,
 	userController.uploadPhoto.bind(userController)
 );
-router.get("/:id", authGuard, userController.getUserById.bind(userController));
+router.get("/", authGuard, userController.getUsers.bind(userController));
 
 export default router;

@@ -1,4 +1,3 @@
-import { User, IUser } from "../entities/user.entity";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 

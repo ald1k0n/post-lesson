@@ -1,4 +1,3 @@
-import { File } from "../entities/file.entity";
 import { IUser, User } from "../entities/user.entity";
 import { AuthService } from "./auth.service";
 
@@ -78,6 +77,42 @@ export class UserService extends AuthService {
 		} catch (error) {
 			console.error("Error uploading file:", error);
 			return null;
+		}
+	}
+
+	public async getAllUsers(
+		userId: string,
+		page: number = 1,
+		size: number = 20
+	): Promise<{
+		page: number;
+		size: number;
+		totalPages: number;
+		totalElements: number;
+		content: IUser[];
+	}> {
+		try {
+			const skip = (page - 1) * size;
+
+			const users = await User.find({ _id: { $ne: userId } })
+				.skip(skip)
+				.limit(size)
+				.lean();
+
+			const totalElements = await User.countDocuments({ _id: { $ne: userId } });
+
+			const totalPages = Math.ceil(totalElements / size);
+
+			return {
+				page,
+				size,
+				totalPages,
+				totalElements,
+				content: users as IUser[],
+			};
+		} catch (error) {
+			console.error("Error fetching users:", error);
+			throw new Error("Error fetching users.");
 		}
 	}
 }
